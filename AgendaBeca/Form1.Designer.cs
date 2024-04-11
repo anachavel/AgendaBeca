@@ -31,7 +31,7 @@
             buttonGuardar = new Button();
             buttonCancelar = new Button();
             buttonEliminar = new Button();
-            buttonAnyadir = new Button();
+            buttonNuevo = new Button();
             buttonModificar = new Button();
             dataGridViewDatos = new DataGridView();
             groupBoxContacto = new GroupBox();
@@ -76,15 +76,17 @@
             buttonEliminar.TabIndex = 13;
             buttonEliminar.Text = "Eliminar";
             buttonEliminar.UseVisualStyleBackColor = true;
+            buttonEliminar.Click += buttonEliminar_Click;
             // 
-            // buttonAnyadir
+            // buttonNuevo
             // 
-            buttonAnyadir.Location = new Point(78, 338);
-            buttonAnyadir.Name = "buttonAnyadir";
-            buttonAnyadir.Size = new Size(112, 34);
-            buttonAnyadir.TabIndex = 12;
-            buttonAnyadir.Text = "Añadir";
-            buttonAnyadir.UseVisualStyleBackColor = true;
+            buttonNuevo.Location = new Point(78, 338);
+            buttonNuevo.Name = "buttonNuevo";
+            buttonNuevo.Size = new Size(112, 34);
+            buttonNuevo.TabIndex = 12;
+            buttonNuevo.Text = "Nuevo";
+            buttonNuevo.UseVisualStyleBackColor = true;
+            buttonNuevo.Click += buttonNuevo_Click;
             // 
             // buttonModificar
             // 
@@ -94,11 +96,12 @@
             buttonModificar.TabIndex = 14;
             buttonModificar.Text = "Modificar";
             buttonModificar.UseVisualStyleBackColor = true;
-            buttonModificar.Click += button3_Click;
+            buttonModificar.Click += buttonModificar_Click_1;
             // 
             // dataGridViewDatos
             // 
             dataGridViewDatos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewDatos.ColumnHeadersVisible = false;
             dataGridViewDatos.Location = new Point(69, 391);
             dataGridViewDatos.Name = "dataGridViewDatos";
             dataGridViewDatos.RowHeadersWidth = 62;
@@ -215,7 +218,7 @@
             Controls.Add(dataGridViewDatos);
             Controls.Add(buttonModificar);
             Controls.Add(buttonEliminar);
-            Controls.Add(buttonAnyadir);
+            Controls.Add(buttonNuevo);
             Controls.Add(buttonCancelar);
             Controls.Add(buttonGuardar);
             Name = "Form1";
@@ -230,7 +233,7 @@
         private Button buttonGuardar;
         private Button buttonCancelar;
         private Button buttonEliminar;
-        private Button buttonAnyadir;
+        private Button buttonNuevo;
         private Button buttonModificar;
         private DataGridView dataGridViewDatos;
         private GroupBox groupBoxContacto;
