@@ -6,7 +6,7 @@ namespace AgendaBeca
 {
     public partial class Form1 : Form
     {
-        private string conexionBD = "Server=(local);Database=AgendaBeca;Trusted_Connection=True;";
+        private string conexionBD = "Server=WINAPPR1JVTCMTM\\SQLEXPRESS;Database=AgendaBeca;Trusted_Connection=True;";
         private int existeId = -1; // La inicializo con un número negativo para indicar que no hay Id cargada
 
         public Form1()
@@ -84,34 +84,45 @@ namespace AgendaBeca
                 return;
             }
 
+            if (existeId == -1)
+            {
+                CrearContacto(nombre, fechaNacimiento, telefono, observaciones);
+            }
+            else
+            {
+                //ModificarDatos(existeId, nombre, fechaNacimiento, telefono, observaciones)
+            }
+        }
+
+        private void CrearContacto (string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
+        {
             using (SqlConnection connection = new SqlConnection(conexionBD))
             {
-                try
-                {
-                    connection.Open();
+                connection.Open();
+                string accion = "insert into Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) values (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
+                SqlCommand command = new SqlCommand(accion, connection);
+                command.Parameters.AddWithValue("@Nombre", nombre);
+                command.Parameters.AddWithValue("@Telefono", telefono);
+                command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
+                command.Parameters.AddWithValue("@Observaciones", observaciones);
+                command.ExecuteNonQuery();
+                CargarDatos();
+                LimpiarCampos();
 
-                    String query = "insert into Contactos (Nombre, FechaNacimiento, Telefono, Observaciones) values (@Nombre, @FechaNacimiento, @Telefono, @Observaciones)";
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ha ocurrido un error: " + ex.Message);
-                }
+                MessageBox.Show("El contacto se ha creado correctamente.");
             }
-
-            MessageBox.Show("Contacto registrado.");
         }
 
         private void buttonModificar_Click_1(object sender, EventArgs e)
         {
-            if (dataGridViewDatos.SelectedRows.Count > 0)
+            /*if (dataGridViewDatos.SelectedRows.Count > 0)
             {
                 existeId = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
                 ModificarDatos(existeId);
-            }
+            }*/
         }
 
-        private void ModificarDatos(int id)
+        private void ModificarDatos(int existeId, string nombre, DateTime fechaNacimiento, string observaciones)
         {
             try
             {
@@ -120,27 +131,31 @@ namespace AgendaBeca
                     connection.Open();
                     string accion = "update Nombre, Telefono, FechaNacimiento from Contactos where Id = @Id";
                     SqlCommand command = new SqlCommand(accion, connection);
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@Id", existeId);
                     command.ExecuteNonQuery();
                     CargarDatos();
                     LimpiarCampos();
 
                 }
-            }// SEGUIR CON EL CATH 
+            }
+            catch (Exception ex) 
+            {
+                MessageBox.Show("No ha sido posible modificar los datos: " + ex.Message);
+            }
         }
 
         private void buttonEliminar_Click(object sender, EventArgs e)
         {
-            if (dataGridViewDatos.SelectedRows.Count > 0)
+            /*if (dataGridViewDatos.SelectedRows.Count > 0)
             {
                 int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
                 EliminarContacto(id);
-            }
+            }*/
         }
 
         private void EliminarContacto(int id)
         {
-            try
+            /*try
             {
                 using (SqlConnection connection = new SqlConnection(conexionBD))
                 {
@@ -158,7 +173,7 @@ namespace AgendaBeca
             catch (Exception ex)
             {
                 MessageBox.Show("Se ha producido un error al crear el contacto: " + ex);
-            }
+            }*/
         }
 
         private void buttonNuevo_Click(object sender, EventArgs e)
