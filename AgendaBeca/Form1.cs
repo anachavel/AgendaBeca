@@ -26,7 +26,6 @@ namespace AgendaBeca
                     DataTable table = new DataTable();
                     adapter.Fill(table);
                     dataGridViewDatos.DataSource = table;
-                    dataGridViewDatos.Columns["Id"].ReadOnly = true;
                 }
             }
             catch (Exception ex)
@@ -62,12 +61,12 @@ namespace AgendaBeca
             CrearContacto(nombre, fechaNacimiento, telefono, observaciones);
         }
 
-        private void CrearContacto (string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
+        private void CrearContacto(string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
         {
             using (SqlConnection connection = new SqlConnection(conexionBD))
             {
                 connection.Open();
-                string accion = "insert into Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) values (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
+                string accion = "INSERT INTO Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) VALUES (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
                 SqlCommand command = new SqlCommand(accion, connection);
                 command.Parameters.AddWithValue("@Nombre", nombre);
                 command.Parameters.AddWithValue("@Telefono", telefono);
@@ -83,13 +82,20 @@ namespace AgendaBeca
 
         private void buttonModificar_Click(object sender, EventArgs e)
         {
-            if (dataGridViewDatos.SelectedRows.Count > 0 && dataGridViewDatos.SelectedRows[0].Cells["Id"].Value != null)
+            if (dataGridViewDatos.SelectedRows.Count > 0)
             {
                 int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
-                String nombre = textBoxNombre.Text;
+                textBoxId.Text = id.ToString();
+                textBoxNombre.Text = dataGridViewDatos.SelectedRows[0].Cells["Nombre"].Value.ToString();
+                dateTimePickerFechaNacimiento.Value = Convert.ToDateTime(dataGridViewDatos.SelectedRows[0].Cells["FechaNacimiento"].Value);
+                textBoxTelefono.Text = dataGridViewDatos.SelectedRows[0].Cells["Telefono"].Value.ToString();
+                textBoxObservaciones.Text = dataGridViewDatos.SelectedRows[0].Cells["Observaciones"].Value.ToString();
+
+                string nombre = textBoxNombre.Text;
                 DateTime fechaNacimiento = dateTimePickerFechaNacimiento.Value;
-                String telefono = textBoxTelefono.Text;
-                String observaciones = textBoxObservaciones.Text;
+                string telefono = textBoxTelefono.Text;
+                string observaciones = textBoxObservaciones.Text;
+
                 ModificarDatos(id, nombre, fechaNacimiento, telefono, observaciones);
             }
         }
@@ -112,7 +118,7 @@ namespace AgendaBeca
                     CargarDatos();
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show("No ha sido posible modificar los datos: " + ex.Message);
             }
