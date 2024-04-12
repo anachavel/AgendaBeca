@@ -96,7 +96,7 @@
             buttonModificar.TabIndex = 14;
             buttonModificar.Text = "Modificar";
             buttonModificar.UseVisualStyleBackColor = true;
-            buttonModificar.Click += buttonModificar_Click_1;
+            buttonModificar.Click += buttonModificar_Click;
             // 
             // dataGridViewDatos
             // 

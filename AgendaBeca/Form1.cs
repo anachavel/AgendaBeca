@@ -21,42 +21,18 @@ namespace AgendaBeca
             {
                 using (SqlConnection connection = new SqlConnection(conexionBD))
                 {
-                    string datos = "select Id, Nombre, FechaNacimiento, Observaciones from Contactos";
+                    string datos = "SELECT Id, Nombre, FechaNacimiento, Telefono, Observaciones FROM Contactos";
                     SqlDataAdapter adapter = new SqlDataAdapter(datos, connection);
                     DataTable table = new DataTable();
                     adapter.Fill(table);
                     dataGridViewDatos.DataSource = table;
+                    dataGridViewDatos.Columns["Id"].ReadOnly = true;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Se ha producido un error al cargar los datos:" + ex.Message);
             }
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox1_TextChanged_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void buttonModificar_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void buttonGuardar_Click(object sender, EventArgs e)
@@ -83,15 +59,7 @@ namespace AgendaBeca
                 MessageBox.Show("Las observaciones no pueden tener más de 500 caracteres.");
                 return;
             }
-
-            if (existeId == -1)
-            {
-                CrearContacto(nombre, fechaNacimiento, telefono, observaciones);
-            }
-            else
-            {
-                //ModificarDatos(existeId, nombre, fechaNacimiento, telefono, observaciones)
-            }
+            CrearContacto(nombre, fechaNacimiento, telefono, observaciones);
         }
 
         private void CrearContacto (string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
@@ -113,29 +81,35 @@ namespace AgendaBeca
             }
         }
 
-        private void buttonModificar_Click_1(object sender, EventArgs e)
+        private void buttonModificar_Click(object sender, EventArgs e)
         {
-            /*if (dataGridViewDatos.SelectedRows.Count > 0)
+            if (dataGridViewDatos.SelectedRows.Count > 0 && dataGridViewDatos.SelectedRows[0].Cells["Id"].Value != null)
             {
-                existeId = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
-                ModificarDatos(existeId);
-            }*/
+                int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
+                String nombre = textBoxNombre.Text;
+                DateTime fechaNacimiento = dateTimePickerFechaNacimiento.Value;
+                String telefono = textBoxTelefono.Text;
+                String observaciones = textBoxObservaciones.Text;
+                ModificarDatos(id, nombre, fechaNacimiento, telefono, observaciones);
+            }
         }
 
-        private void ModificarDatos(int existeId, string nombre, DateTime fechaNacimiento, string observaciones)
+        private void ModificarDatos(int id, string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(conexionBD))
                 {
                     connection.Open();
-                    string accion = "update Nombre, Telefono, FechaNacimiento from Contactos where Id = @Id";
+                    string accion = "UPDATE Contactos SET Nombre = @Nombre, FechaNacimiento = @FechaNacimiento, Telefono = @Telefono, Observaciones = @Observaciones WHERE Id = @Id";
                     SqlCommand command = new SqlCommand(accion, connection);
-                    command.Parameters.AddWithValue("@Id", existeId);
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@Nombre", nombre);
+                    command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
+                    command.Parameters.AddWithValue("@Telefono", telefono);
+                    command.Parameters.AddWithValue("@Observaciones", observaciones);
                     command.ExecuteNonQuery();
                     CargarDatos();
-                    LimpiarCampos();
-
                 }
             }
             catch (Exception ex) 
@@ -146,21 +120,21 @@ namespace AgendaBeca
 
         private void buttonEliminar_Click(object sender, EventArgs e)
         {
-            /*if (dataGridViewDatos.SelectedRows.Count > 0)
+            if (dataGridViewDatos.SelectedRows.Count > 0)
             {
                 int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
                 EliminarContacto(id);
-            }*/
+            }
         }
 
         private void EliminarContacto(int id)
         {
-            /*try
+            try
             {
                 using (SqlConnection connection = new SqlConnection(conexionBD))
                 {
                     connection.Open();
-                    string accion = "delete * from Contactos where Id = @Id";
+                    string accion = "DELETE * FROM Contactos WHERE Id = @Id";
                     SqlCommand command = new SqlCommand(accion, connection);
                     command.Parameters.AddWithValue("@Id", id);
                     command.ExecuteNonQuery();
@@ -172,8 +146,8 @@ namespace AgendaBeca
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Se ha producido un error al crear el contacto: " + ex);
-            }*/
+                MessageBox.Show("Se ha producido un error al eliminar el contacto: " + ex);
+            }
         }
 
         private void buttonNuevo_Click(object sender, EventArgs e)
