@@ -134,7 +134,7 @@ namespace AgendaBeca
                 using (SqlConnection connection = new SqlConnection(conexionBD))
                 {
                     connection.Open();
-                    string accion = "DELETE * FROM Contactos WHERE Id = @Id";
+                    string accion = "DELETE FROM Contactos WHERE Id = @Id";
                     SqlCommand command = new SqlCommand(accion, connection);
                     command.Parameters.AddWithValue("@Id", id);
                     command.ExecuteNonQuery();
