@@ -142,6 +142,7 @@
             textBoxId.Location = new Point(223, 30);
             textBoxId.Name = "textBoxId";
             textBoxId.Size = new Size(91, 31);
+            textBoxId.ReadOnly = true;
             textBoxId.TabIndex = 18;
             // 
             // lblObservaciones
