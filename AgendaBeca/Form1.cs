@@ -8,7 +8,7 @@ namespace AgendaBeca
     public partial class Form1 : Form
     {
         private string conexionBD = "Server=WINAPPR1JVTCMTM\\SQLEXPRESS;Database=AgendaBeca;Trusted_Connection=True;";
-        private int existeId = -1; // La inicializo con un n鷐ero negativo para indicar que no hay Id cargada
+        private int existeId = -1; // La inicializo con un n煤mero negativo para indicar que no hay Id cargada
 
         public Form1()
         {
@@ -37,7 +37,7 @@ namespace AgendaBeca
 
         private void buttonGuardar_Click(object sender, EventArgs e)
         {
-            int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
+            int id = existeId;
             String nombre = textBoxNombre.Text;
             DateTime fechaNacimiento = dateTimePickerFechaNacimiento.Value;
             String telefono = textBoxTelefono.Text;
@@ -45,27 +45,36 @@ namespace AgendaBeca
 
             if (nombre.Length > 100)
             {
-                MessageBox.Show("El nombre no puede tener m醩 de 100 caracteres.");
+                MessageBox.Show("El nombre no puede tener m谩s de 100 caracteres.");
                 return;
             }
 
             if (telefono.Length != 9)
             {
-                MessageBox.Show("El tel閒ono debe de tener exactamente 9 caracteres.");
+                MessageBox.Show("El tel茅fono debe de tener exactamente 9 caracteres.");
                 return;
             }
 
             if (observaciones.Length > 500)
             {
-                MessageBox.Show("Las observaciones no pueden tener m醩 de 500 caracteres.");
+                MessageBox.Show("Las observaciones no pueden tener m谩s de 500 caracteres.");
                 return;
             }
-            CrearContacto(id, nombre, fechaNacimiento, telefono, observaciones);
+            
+            if (id == -1)
+            {
+                CrearContacto(nombre, fechaNacimiento, telefono, observaciones);
+            }
+            else
+            {
+                ActualizarContacto(id, nombre, fechaNacimiento, telefono, observaciones);
+            }
         }
 
-        private void CrearContacto(int id, string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
+        private void CrearContacto(string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
         {
-            existeId = id;
+            //id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
+            //existeId = id;
             using (SqlConnection connection = new SqlConnection(conexionBD))
             {
                 connection.Open();
@@ -73,42 +82,26 @@ namespace AgendaBeca
 
                 try
                 {
-                    // Crear comando SQL en la transacci髇
-                    SqlCommand command = connection.CreateCommand();
                     transaccion = connection.BeginTransaction();
+
+                    // Crear comando SQL en la transacci贸n
+                    SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
 
-                    if (existeId == -1)
-                    {
                         // Crear contacto
                         command.CommandText = "INSERT INTO Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) VALUES (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
-                    }
-                    else
-                    {
-                        // Actuaizar contacto
-                        command.CommandText = "UPDATE Contactos SET Nombre = @Nombre, FechaNacimiento = @FechaNacimiento, Telefono = @Telefono, Observaciones = @Observaciones WHERE Id = @Id";
-                        command.Parameters.AddWithValue("@Id", existeId);
                         command.Parameters.AddWithValue("@Nombre", nombre);
                         command.Parameters.AddWithValue("@Telefono", telefono);
                         command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
                         command.Parameters.AddWithValue("@Observaciones", observaciones);
-                    }
+                        command.ExecuteNonQuery();
+                        CargarDatos();
 
-                    command.ExecuteNonQuery();
-                    LimpiarCampos();
-                    CargarDatos();
+                        // Commmit de la transacci贸n
+                        transaccion.Commit();
 
-                    // Commmit de la transacci髇
-                    transaccion.Commit();
-
-                    if (existeId == -1)
-                    {
                         MessageBox.Show("El contacto se ha creado correctamente.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("El contacto se ha actualizado correctamente.");
-                    }           
+                    
                 }
                 catch (Exception ex)
                 {
@@ -138,8 +131,49 @@ namespace AgendaBeca
                 DateTime fechaNacimiento = dateTimePickerFechaNacimiento.Value;
                 string telefono = textBoxTelefono.Text;
                 string observaciones = textBoxObservaciones.Text;
+            }
+        }
 
-                //ModificarDatos(id, nombre, fechaNacimiento, telefono, observaciones);
+        private void ActualizarContacto(int id, string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
+        {
+            using (SqlConnection connection = new SqlConnection(conexionBD))
+            {
+                connection.Open();
+                SqlTransaction transaccion = null;
+
+                try
+                {
+                    transaccion = connection.BeginTransaction();
+
+                    // Crear comando SQL en la transacci贸n
+                    SqlCommand command = connection.CreateCommand();
+                    command.Transaction = transaccion;
+
+                    // Actualizar contacto
+                    command.CommandText = "UPDATE Contactos SET Nombre = @Nombre, FechaNacimiento = @FechaNacimiento, Telefono = @Telefono, Observaciones = @Observaciones WHERE Id = @Id";
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@Nombre", nombre);
+                    command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
+                    command.Parameters.AddWithValue("@Telefono", telefono);
+                    command.Parameters.AddWithValue("@Observaciones", observaciones);
+                    command.ExecuteNonQuery();
+                    CargarDatos();
+
+                    // Commit de la transacci贸n
+                    transaccion.Commit();
+
+                    MessageBox.Show("El contacto se ha actualizado correctamente.");
+                }
+                catch (Exception ex)
+                {
+                    //Rollback
+                    if (transaccion != null)
+                    {
+                        transaccion.Rollback();
+                    }
+
+                    MessageBox.Show("Error al guardar el contacto: " + ex.Message);
+                }
             }
         }
 
@@ -163,7 +197,7 @@ namespace AgendaBeca
                 {
                     transaccion = connection.BeginTransaction();
 
-                    // Crear un comando SQL en la transacci髇
+                    // Crear un comando SQL en la transacci贸n
                     SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
 
@@ -173,7 +207,7 @@ namespace AgendaBeca
                     CargarDatos();
                     LimpiarCampos();
 
-                    // Commit de la transacci髇
+                    // Commit de la transacci贸n
                     transaccion.Commit();
 
                     MessageBox.Show("Se ha eliminado el contacto correctamente.");
@@ -200,7 +234,6 @@ namespace AgendaBeca
         private void LimpiarCampos()
         {
             existeId = -1;
-            textBoxId.Clear();
             textBoxNombre.Clear();
             textBoxTelefono.Clear();
             textBoxObservaciones.Clear();
@@ -208,4 +241,6 @@ namespace AgendaBeca
         }
     }
 }
+
+
 
