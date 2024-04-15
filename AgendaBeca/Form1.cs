@@ -76,8 +76,6 @@ namespace AgendaBeca
 
         private void CrearContacto(string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
         {
-            //id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
-            //existeId = id;
             using (SqlConnection connection = new SqlConnection(conexionBD))
             {
                 connection.Open();
@@ -91,20 +89,21 @@ namespace AgendaBeca
                     SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
 
-                        // Crear contacto
-                        command.CommandText = "INSERT INTO Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) VALUES (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
-                        command.Parameters.AddWithValue("@Nombre", nombre);
-                        command.Parameters.AddWithValue("@Telefono", telefono);
-                        command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
-                        command.Parameters.AddWithValue("@Observaciones", observaciones);
-                        command.ExecuteNonQuery();
-                        CargarDatos();
+                    // Crear contacto
+                    command.CommandText = "INSERT INTO Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) VALUES (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
+                    command.Parameters.AddWithValue("@Nombre", nombre);
+                    command.Parameters.AddWithValue("@Telefono", telefono);
+                    command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
+                    command.Parameters.AddWithValue("@Observaciones", observaciones);
+                    command.ExecuteNonQuery();
 
-                        // Commmit de la transacción
-                        transaccion.Commit();
+                    // Commmit de la transacción
+                    transaccion.Commit();
 
-                        MessageBox.Show("El contacto se ha creado correctamente.");
-                    
+                    MessageBox.Show("El contacto se ha creado correctamente.");
+
+                    CargarDatos();
+                    LimpiarCampos();
                 }
                 catch (Exception ex)
                 {
@@ -160,12 +159,14 @@ namespace AgendaBeca
                     command.Parameters.AddWithValue("@Telefono", telefono);
                     command.Parameters.AddWithValue("@Observaciones", observaciones);
                     command.ExecuteNonQuery();
-                    CargarDatos();
 
                     // Commit de la transacción
                     transaccion.Commit();
 
                     MessageBox.Show("El contacto se ha actualizado correctamente.");
+
+                    CargarDatos();
+                    LimpiarCampos();
                 }
                 catch (Exception ex)
                 {
@@ -203,17 +204,17 @@ namespace AgendaBeca
                     // Crear un comando SQL en la transacción
                     SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
-
                     command.CommandText = "DELETE FROM Contactos WHERE Id = @Id";
                     command.Parameters.AddWithValue("@Id", id);
                     command.ExecuteNonQuery();
-                    CargarDatos();
-                    LimpiarCampos();
 
                     // Commit de la transacción
                     transaccion.Commit();
 
                     MessageBox.Show("Se ha eliminado el contacto correctamente.");
+
+                    CargarDatos();
+                    LimpiarCampos();
                 }
                 catch (Exception ex)
                 {
@@ -237,6 +238,7 @@ namespace AgendaBeca
         private void LimpiarCampos()
         {
             existeId = -1;
+            textBoxId.Clear();
             textBoxNombre.Clear();
             textBoxTelefono.Clear();
             textBoxObservaciones.Clear();
