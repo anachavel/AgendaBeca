@@ -8,7 +8,7 @@ namespace AgendaBeca
     public partial class Form1 : Form
     {
         private string conexionBD = "Server=WINAPPR1JVTCMTM\\SQLEXPRESS;Database=AgendaBeca;Trusted_Connection=True;";
-        private int existeId = -1; // La inicializo con un n鷐ero negativo para indicar que no hay Id cargada
+        private int existeId = -1; // La inicializo con un n煤mero negativo para indicar que no hay Id cargada
 
         public Form1()
         {
@@ -48,19 +48,19 @@ namespace AgendaBeca
 
             if (nombre.Length > 100)
             {
-                MessageBox.Show("El nombre no puede tener m醩 de 100 caracteres.");
+                MessageBox.Show("El nombre no puede tener m谩s de 100 caracteres.");
                 return;
             }
 
             if (telefono.Length != 9)
             {
-                MessageBox.Show("El tel閒ono debe de tener exactamente 9 caracteres.");
+                MessageBox.Show("El tel茅fono debe de tener exactamente 9 caracteres.");
                 return;
             }
 
             if (observaciones.Length > 500)
             {
-                MessageBox.Show("Las observaciones no pueden tener m醩 de 500 caracteres.");
+                MessageBox.Show("Las observaciones no pueden tener m谩s de 500 caracteres.");
                 return;
             }
             
@@ -87,7 +87,7 @@ namespace AgendaBeca
                 {
                     transaccion = connection.BeginTransaction();
 
-                    // Crear comando SQL en la transacci髇
+                    // Crear comando SQL en la transacci贸n
                     SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
 
@@ -100,7 +100,7 @@ namespace AgendaBeca
                         command.ExecuteNonQuery();
                         CargarDatos();
 
-                        // Commmit de la transacci髇
+                        // Commmit de la transacci贸n
                         transaccion.Commit();
 
                         MessageBox.Show("El contacto se ha creado correctamente.");
@@ -148,7 +148,7 @@ namespace AgendaBeca
                 {
                     transaccion = connection.BeginTransaction();
 
-                    // Crear comando SQL en la transacci髇
+                    // Crear comando SQL en la transacci贸n
                     SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
 
@@ -162,7 +162,7 @@ namespace AgendaBeca
                     command.ExecuteNonQuery();
                     CargarDatos();
 
-                    // Commit de la transacci髇
+                    // Commit de la transacci贸n
                     transaccion.Commit();
 
                     MessageBox.Show("El contacto se ha actualizado correctamente.");
@@ -200,7 +200,7 @@ namespace AgendaBeca
                 {
                     transaccion = connection.BeginTransaction();
 
-                    // Crear un comando SQL en la transacci髇
+                    // Crear un comando SQL en la transacci贸n
                     SqlCommand command = connection.CreateCommand();
                     command.Transaction = transaccion;
 
@@ -210,7 +210,7 @@ namespace AgendaBeca
                     CargarDatos();
                     LimpiarCampos();
 
-                    // Commit de la transacci髇
+                    // Commit de la transacci贸n
                     transaccion.Commit();
 
                     MessageBox.Show("Se ha eliminado el contacto correctamente.");
@@ -244,4 +244,6 @@ namespace AgendaBeca
         }
     }
 }
+
+
 
