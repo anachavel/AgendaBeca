@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq.Expressions;
 
 namespace AgendaBeca
 {
@@ -36,6 +37,7 @@ namespace AgendaBeca
 
         private void buttonGuardar_Click(object sender, EventArgs e)
         {
+            int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
             String nombre = textBoxNombre.Text;
             DateTime fechaNacimiento = dateTimePickerFechaNacimiento.Value;
             String telefono = textBoxTelefono.Text;
@@ -58,25 +60,58 @@ namespace AgendaBeca
                 MessageBox.Show("Las observaciones no pueden tener más de 500 caracteres.");
                 return;
             }
-            CrearContacto(nombre, fechaNacimiento, telefono, observaciones);
+            CrearContacto(id, nombre, fechaNacimiento, telefono, observaciones);
         }
 
-        private void CrearContacto(string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
+        private void CrearContacto(int id, string nombre, DateTime fechaNacimiento, string telefono, string observaciones)
         {
+            existeId = id;
             using (SqlConnection connection = new SqlConnection(conexionBD))
             {
                 connection.Open();
-                string accion = "INSERT INTO Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) VALUES (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
-                SqlCommand command = new SqlCommand(accion, connection);
-                command.Parameters.AddWithValue("@Nombre", nombre);
-                command.Parameters.AddWithValue("@Telefono", telefono);
-                command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
-                command.Parameters.AddWithValue("@Observaciones", observaciones);
-                command.ExecuteNonQuery();
-                CargarDatos();
-                LimpiarCampos();
+                SqlTransaction transaccion = null;
 
-                MessageBox.Show("El contacto se ha creado correctamente.");
+                try
+                {
+                    transaccion = connection.BeginTransaction();
+
+                    // Crear comando SQL en la transacción
+                    SqlCommand command = connection.CreateCommand();
+                    command.Transaction = transaccion;
+
+                    if (existeId == -1)
+                    {
+                        // Crear contacto
+                        string accion = "INSERT INTO Contactos (Nombre, Telefono, FechaNacimiento, Observaciones) VALUES (@Nombre, @Telefono, @FechaNacimiento, @Observaciones)";
+                    }
+                    else
+                    {
+                        // Actuaizar contacto
+                        command.CommandText = "UPDATE Contactos SET Nombre = @Nombre, FechaNacimiento = @FechaNacimiento, Telefono = @Telefono, Observaciones = @Observaciones WHERE Id = @Id";
+                        command.Parameters.AddWithValue("@Id", existeId);
+                        command.Parameters.AddWithValue("@Nombre", nombre);
+                        command.Parameters.AddWithValue("@Telefono", telefono);
+                        command.Parameters.AddWithValue("@FechaNacimiento", fechaNacimiento);
+                        command.Parameters.AddWithValue("@Observaciones", observaciones);
+                        command.ExecuteNonQuery();
+                        CargarDatos();
+
+                        // Commmit de la transacción
+                        transaccion.Commit();
+
+                        MessageBox.Show("El contacto se ha creado correctamente.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //Rollback
+                    if (transaccion != null)
+                    {
+                        transaccion.Rollback();
+                    }
+
+                    MessageBox.Show("Error al guardar el contacto: " + ex.Message);
+                }
             }
         }
 
@@ -96,7 +131,7 @@ namespace AgendaBeca
                 string telefono = textBoxTelefono.Text;
                 string observaciones = textBoxObservaciones.Text;
 
-                ModificarDatos(id, nombre, fechaNacimiento, telefono, observaciones);
+                //ModificarDatos(id, nombre, fechaNacimiento, telefono, observaciones);
             }
         }
 
@@ -135,24 +170,41 @@ namespace AgendaBeca
 
         private void EliminarContacto(int id)
         {
-            try
+            using (SqlConnection connection = new SqlConnection(conexionBD))
             {
-                using (SqlConnection connection = new SqlConnection(conexionBD))
+                connection.Open();
+                SqlTransaction transaccion = null;
+
+                try
                 {
-                    connection.Open();
-                    string accion = "DELETE FROM Contactos WHERE Id = @Id";
-                    SqlCommand command = new SqlCommand(accion, connection);
+                    transaccion = connection.BeginTransaction();
+
+                    // Crear un comando SQL en la transacción
+                    SqlCommand command = connection.CreateCommand();
+                    command.Transaction = transaccion;
+
+                    command.CommandText = "DELETE FROM Contactos WHERE Id = @Id";
                     command.Parameters.AddWithValue("@Id", id);
                     command.ExecuteNonQuery();
                     CargarDatos();
                     LimpiarCampos();
 
+                    // Commit de la transacción
+                    transaccion.Commit();
+
                     MessageBox.Show("Se ha eliminado el contacto correctamente.");
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Se ha producido un error al eliminar el contacto: " + ex);
+                catch (Exception ex)
+                {
+                    // Rollback
+                    if (transaccion != null)
+                    {
+                        transaccion.Rollback();
+                    }
+
+                    MessageBox.Show("Se ha producido un error al eliminar el contacto: " + ex);
+                }
+
             }
         }
 
@@ -171,3 +223,4 @@ namespace AgendaBeca
         }
     }
 }
+
