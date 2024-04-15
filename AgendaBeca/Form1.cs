@@ -18,9 +18,11 @@ namespace AgendaBeca
 
         private void CargarDatos()
         {
-            try
+            using (SqlConnection connection = new SqlConnection(conexionBD))
             {
-                using (SqlConnection connection = new SqlConnection(conexionBD))
+                connection.Open();
+
+                try
                 {
                     string datos = "SELECT Id, Nombre, FechaNacimiento, Telefono, Observaciones FROM Contactos";
                     SqlDataAdapter adapter = new SqlDataAdapter(datos, connection);
@@ -28,11 +30,12 @@ namespace AgendaBeca
                     adapter.Fill(table);
                     dataGridViewDatos.DataSource = table;
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Se ha producido un error al cargar los datos:" + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Se ha producido un error al cargar los datos:" + ex.Message);
-            }
+
         }
 
         private void buttonGuardar_Click(object sender, EventArgs e)
@@ -120,8 +123,8 @@ namespace AgendaBeca
         {
             if (dataGridViewDatos.SelectedRows.Count > 0)
             {
-                int id = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
-                textBoxId.Text = id.ToString();
+                existeId = Convert.ToInt32(dataGridViewDatos.SelectedRows[0].Cells["Id"].Value);
+                textBoxId.Text = existeId.ToString();
                 textBoxNombre.Text = dataGridViewDatos.SelectedRows[0].Cells["Nombre"].Value.ToString();
                 dateTimePickerFechaNacimiento.Value = Convert.ToDateTime(dataGridViewDatos.SelectedRows[0].Cells["FechaNacimiento"].Value);
                 textBoxTelefono.Text = dataGridViewDatos.SelectedRows[0].Cells["Telefono"].Value.ToString();
